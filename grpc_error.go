@@ -1,6 +1,8 @@
 package ez_grpc
 
 import (
+	"errors"
+
 	"github.com/LeonColt/ez"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -50,7 +52,8 @@ func HandleGrpcError(err error) error {
 	if err == nil {
 		return nil
 	}
-	if grpcErr, ok := err.(*ez.Error); ok {
+	var grpcErr *ez.Error
+	if errors.As(err, &grpcErr) {
 		return status.Error(ParseErrorCodeToGrpcCode(grpcErr.Code), grpcErr.Error())
 	} else {
 		return status.Errorf(codes.Internal, "unknown error: %#v", err)

@@ -1,6 +1,7 @@
 package ez_grpc_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/LeonColt/ez"
@@ -40,5 +41,11 @@ func TestHandleGrpcError(t *testing.T) {
 		require.Equal(t, codes.Internal, ez_grpc.ParseErrorCodeToGrpcCode(err.Code))
 		grpcerr := ez_grpc.HandleGrpcError(err)
 		require.EqualError(t, grpcerr, status.Error(codes.Internal, "13: error parsing").Error())
+	}
+	{
+		err := getBuilder(ez.ErrorCodeUnauthenticated, "unauthenticated")
+		joinedErr := errors.Join(err, errors.New("additional error"))
+		grpcerr := ez_grpc.HandleGrpcError(joinedErr)
+		require.EqualError(t, grpcerr, status.Error(codes.Unauthenticated, "16: unauthenticated").Error())
 	}
 }
